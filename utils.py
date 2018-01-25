@@ -29,13 +29,17 @@ def get_top100_list(refresh_html=False):
     os.makedirs(path_data_dir, exist_ok=True)
 
     # 1~50, 50~100위 웹페이지 주소
-    url_chart_realtime_50 = 'https://www.melon.com/chart/index.htm'
-    url_chart_realtime_100 = 'https://www.melon.com/chart/index.htm#params%5Bidx%5D=51'
+    url_chart_realtime = 'http://www.melon.com/chart/index.htm#params%5Bidx%5D=1'
+    # url_chart_realtime_100 = 'https://www.melon.com/chart/index.htm#params%5Bidx%5D=51'
 
-    file_path = os.path.join(path_data_dir, 'chart_realtime_50.html')
+
+    # refresh_html매개변수가 True 일 경우, 무조건 새로 파일을 다운받도록 함
+
+    file_path = os.path.join(path_data_dir, 'chart_realtime.html')
     try:
-        with open(file_path, 'xt') as f:
-            response = requests.get(url_chart_realtime_50)
+        file_mode = 'wt' if refresh_html else 'xt'
+        with open(file_path, file_mode) as f:
+            response = requests.get(url_chart_realtime)
             source = response.text
             f.write(source)
 
@@ -46,14 +50,19 @@ def get_top100_list(refresh_html=False):
 
     # 100위
 
-    file_path = os.path.join(path_data_dir, 'chart_realtime_100.html')
-    if not os.path.exists(file_path):
-        response = requests.get(url_chart_realtime_100)
-        source = response.text
-        with open(file_path, 'wt') as f:
-            f.write(source)
-    else:
-        print(f'"{file_path}" file is already exists!')
+    # file_path = os.path.join(path_data_dir, 'chart_realtime_100.html')
+    # if not os.path.exists(file_path) or refresh_html:
+    #     response = requests.get(url_chart_realtime_100)
+    #     source = response.text
+    #     with open(file_path, 'wt') as f:
+    #         f.write(source)
+    # else:
+    #     print(f'"{file_path}" file is already exists!')
+
+
+
+
+
 
 
     # file_path = os.path.join(path_data_dir, 'abc.txt')
