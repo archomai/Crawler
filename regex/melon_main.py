@@ -4,8 +4,9 @@ import re
 source = open('melon.html', 'rt').read()
 
 
-PATTERN_TR = re.compile(r'<tr class="lst.*?>.*?</tr>', re.DOTALL)
+PATTERN_TR = re.compile(r'<tr class="lst50".*?>.*?</tr>', re.DOTALL)
 PATTERN_TD = re.compile(r'<td.*?>.*?</td>', re.DOTALL)
+
 
 
 for tr_list in re.finditer(PATTERN_TR, source):
