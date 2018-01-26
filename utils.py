@@ -5,6 +5,10 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
+PATH_MODULE = os.path.abspath(__file__)
+ROOT_DIR = os.path.dirname(PATH_MODULE)
+PATH_DATA_DIR = os.path.join(ROOT_DIR, 'data')
+
 
 def get_top100_list(refresh_html=False):
     """
@@ -17,17 +21,8 @@ def get_top100_list(refresh_html=False):
     :param refresh_html: True일 경우, 무조건 새 HTML파일을 사이트에서 내려준다.
     :return:
     """
-    # 프로젝트 컨테이너 폴더 경로
-    path_module = os.path.abspath(__name__)
-    print(f'path_module: \n{path_module}')
-    root_dir = os.path.dirname(path_module)
-    print(f'root_dir: \n{root_dir}')
 
-    # data/ 폴더 경로
-    path_data_dir = os.path.join(root_dir, 'data')
-    print(f'path_data_dir: \n{path_data_dir}')
-
-    os.makedirs(path_data_dir, exist_ok=True)
+    os.makedirs(PATH_DATA_DIR, exist_ok=True)
 
     # 1~50, 50~100위 웹페이지 주소
     url_chart_realtime = 'https://www.melon.com/chart/index.htm'
@@ -35,7 +30,7 @@ def get_top100_list(refresh_html=False):
 
     # refresh_html매개변수가 True 일 경우, 무조건 새로 파일을 다운받도록 함
 
-    file_path = os.path.join(path_data_dir, 'chart_realtime.html')
+    file_path = os.path.join(PATH_DATA_DIR, 'chart_realtime.html')
     try:
         file_mode = 'wt' if refresh_html else 'xt'
         with open(file_path, file_mode) as f:
@@ -79,11 +74,90 @@ def get_top100_list(refresh_html=False):
         p = re.compile(r'(.*\..*?)/')
         url_img_cover = re.search(p, url_img_cover).group(1)
 
+        song_id = tr.find('a', class_='btn button_icons type03 song_info').get('href')
+        song_p = re.compile(r'(\d+)')
+        song_id = re.search(song_p, song_id).group(1)
+
         result.append({
             'rank': rank,
             'title': title,
             'url_img_cover': url_img_cover,
             'artist': artist,
             'album': album,
+            'song_id': song_id,
         })
     return result
+
+def get_song_detail(song_id, refresh_html=False):
+    '''
+    song_id 해당하는 곡정보 dict를 반환
+    :param song_id:
+    :return:
+    '''
+    # 프로젝트 컨테이너 폴더 경로
+
+    os.makedirs(PATH_DATA_DIR, exist_ok=True)
+
+    url = 'https://www.melon.com/song/detail.htm'
+    params = {
+        'songID': song_id,
+    }
+    response = requests.get(url, params)
+    print(response.url)
+
+    file_path = os.path.join(PATH_DATA_DIR, 'song_detail.html')
+    try:
+        file_mode = 'wt' if refresh_html else 'xt'
+        with open(file_path, file_mode) as f:
+            url = 'https://www.melon.com/song/detail.htm'
+            params = {
+                'songID': song_id,
+            }
+            response = requests.get(url, params)
+            source = response.text
+            f.write(source)
+
+    except FileExistsError as e:
+        print(f'"{file_path}" file is already exists!')
+
+    source = open(file_path, 'rt').read()
+    soup = BeautifulSoup(source, 'lxml')
+
+    title = soup.find('div', class_='song_name').strong.next_sibling.strip()
+    title = soup.find('div', class_='song_name').get(strip:True)[2:]git
+
+
+
+
+
+    #
+    # artist = soup.find('a', class_='artist_name').text
+    #
+    # album = soup.find('dl', class_='list').find('a').text
+    #
+    #
+    # list = soup.find('dl', class_='list')
+    #
+    # print(list)
+    # dd_list = []
+    # dd = re.compile('<dd>(.*?</dd>)')
+    #
+    # print(dd)
+    #
+    #
+    #
+    # date_p = re.compile(r'([\d\.]+)', re.DOTALL)
+    #
+    # # date = re.search(date_p, list).group(1)
+    # #
+    # # print(date)
+    #
+    # lylics = soup.find('div', class_='lyric').text
+    #
+    # writer = soup.find('div', class_="ellipsis artist").find('a').text
+    #
+    # # return title, artist, album, lylics, writer,
+
+
+
+
